@@ -6,7 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/app.js"
-    
   },
   "repository": {
     "type": "git",
@@ -20,6 +19,11 @@
   },
   "homepage": "https://github.com/wwz254390130/szhmqd27_node#readme",
   "dependencies": {
-    "express": "^4.16.4"
+    "art-template": "^4.13.2",
+    "body-parser": "^1.18.3",
+    "captchapng": "0.0.1",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "mongodb": "^3.1.12"
   }
 }
