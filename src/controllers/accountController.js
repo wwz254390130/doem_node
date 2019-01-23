@@ -1,13 +1,8 @@
 const path = require('path')
-const MongoClient = require('mongodb').MongoClient;
+
 const captchapng = require('captchapng')
+const datatool = require(path.join(__dirname, "../tool/datatool.js"))
 
-
-// Connection URL
-const url = 'mongodb://localhost:27017';
-
-// 数据库名称
-const dbName = 'szhmqd27';
 
 // 导出的一个方法,改方法获取注册页面
 exports.getRegisterPage = (req, res) => {
@@ -28,48 +23,25 @@ exports.register = (req, res) => {
     const {
         username
     } = req.body;
-    console.log(req.body);
 
-    // 2.先判断数据库中用户名,是否存在,如果存在返回提示
-    MongoClient.connect(url, {
-        useNewUrlParser: true
-    }, (err, client) => {
-        // 拿到db
-        const db = client.db(dbName);
-        // 拿到集合
-        const collection = db.collection('accountInfo');
-        console.log("111");
+    // 2.先判断数据库中用户名,是否存在
+    datatool.findOnes("accountInfo", req.body, (err, doc) => {
+        if (doc) {
+            result.status = 1;
+            result.message = "用户名已经存在"
+            res.json(result)
+        } else {
 
-        // 查询一个
-        collection.findOne({
-            username
-        }, (err, doc) => {
-            if (doc) {
-                result.status = 1;
-                result.message = "用户名已经存在"
-
-                // 关闭数据库
-                client.close()
-                // 返回
+            datatool.insertOnes("accountInfo", req.body, (err, result2) => {
+                if (!result2) {
+                    result.status = 2;
+                    result.message = "注册失败"
+                }
                 res.json(result)
-            } else {
-                // 如果用户名不存在
-                collection.insertOne(req.body, (err, result2) => {
-                    if (!result2) {
-                        result.status = 2;
-                        result.message = "注册失败"
-                    }
-                    // 关闭数据库
-                    client.close()
+            })
+        }
+    })
 
-                    //返回数据
-                    res.json(result)
-                })
-            }
-        })
-
-
-    });
 
 }
 
@@ -89,7 +61,7 @@ exports.getVcodeImage = (req, res) => {
     p.color(80, 80, 80, 255); // Second color: paint (red, green, blue, alpha)
 
     var img = p.getBase64();
-    var imgbase64 =Buffer.from(img, "base64");
+    var imgbase64 = Buffer.from(img, "base64");
     res.writeHead(200, {
         "Content-Type": "image/png"
     });
@@ -104,8 +76,7 @@ exports.login = (req, res) => {
         message: '登录成功'
     }
     // 拿到账号和密码
-    const {
-        username,
+    const {username,
         password,
         vcode
     } = req.body
@@ -115,38 +86,17 @@ exports.login = (req, res) => {
         result1.status = 1;
         result1.message = "验证码错误"
         res.json(result1)
+      return
     }
-
-    // 2.先判断数据库中用户名,是否存在,如果存在返回提示
-    MongoClient.connect(url, {
-        useNewUrlParser: true
-    }, (err, client) => {
-        // 拿到db
-        const db = client.db(dbName);
-        // 拿到集合
-        const collection = db.collection('accountInfo');
-        collection.findOne({
-            username,
-            password
-        }, (err, docs) => {
-            if (!docs) {
-                result1.status = 2;
-                result1.message = "账号或者密码错误!"
-
-                client.close()
-                //返回数据
-               
-                
-
-            } else {
-
-                client.close()
-                res.json(result1)
-
-
-            }
-        })
-
-
+ 
+    datatool.findOnes('accountInfo', {username,password}, (err, docs) => {
+        if (!docs) {
+            result1.status = 2;
+            result1.message = "账号或者密码错误!"
+        } else{
+        req.session.loginName =username;
+        }
+        res.json(result1)
     })
+
 }

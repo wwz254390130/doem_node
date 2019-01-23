@@ -19,7 +19,7 @@
             <span class="input-group-addon" id="basic-addon1">学生姓名</span>
             <input type="text" class="form-control" id="studentNameId" placeholder="请输入学生姓名进行查询" aria-describedby="basic-addon1" style="width:200px;margin-right:10px;" value="{{keyword}} ">
             <input type="button" class="btn btn-success" onclick="search()" value="查找" style="margin-right:10px;">
-            <input type="button" class="btn btn-success" value="新增" onclick="window.location='/studentmanager/add'">
+            <input type="button" class="btn btn-success" value="新增" onclick="window.location='/student/add'">
         </div>
     </div>
     <div class="panel-body">
@@ -42,9 +42,9 @@
                     <td>{{$value.sex}}</td>
                     <td>{{$value.phone}}</td>
                     <td>
-                        <a href="" class="btn btn-success">编辑</a> |
+                        <a href="/student/edit/{{$value._id+''}} " class="btn btn-success">编辑</a> |
 
-                        <input type="button" onclick="" class="btn btn-danger" value="删除">
+                        <input type="button" onclick="delstudent({{$value._id}})" class="btn btn-danger" value="删除">
                     </td>
                 </tr>
                 {{/each}}
@@ -56,6 +56,12 @@
         function search(){
             const keyword = $('#studentNameId').val().trim()   
             location.href =`/student/list?keyword=${keyword}`
+        }
+
+        function delstudent(_id){
+                if(confirm("你确认要删除吗?")){
+                    location=`/student/delete/${_id}`
+                }
         }
 </script>
 {{/block}}

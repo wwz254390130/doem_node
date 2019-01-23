@@ -16,10 +16,28 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // Use the session middleware
-app.use(session({ secret: 'keyboard cat',resave:false,saveUninitialized:false, cookie: { maxAge: 60000 }}))
+app.use(session({ secret: 'keyboard cat',resave:false,saveUninitialized:false, cookie: { maxAge: 6000000 }}))
 
 // 设置静态资源根目录
 app.use(express.static(path.join(__dirname,"public")))
+
+
+// 拦截到所以的请求
+app.all('/*',(req,res,next)=>{
+    if(req.url.includes('account')){
+        // 执行下一个中间件
+        next()
+    }else{
+        if(req.session.loginName){
+            next()
+        }else{
+            res.send(`<script>alert('你还没有登录请先登录!');location.href='/account/login'</script>`)
+        }
+    }
+})
+
+
+
 
 // 导入路由对象,路由中间写在最后面
 const accountRouter =require(path.join(__dirname,'routers/accountRouter.js'))
